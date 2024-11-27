@@ -29,7 +29,7 @@
             box-sizing: border-box;
             border: 15px solid transparent;
             pointer-events: none;
-			z-index: 5; /* Lower priority than cyan circles */
+            z-index: 5; /* Lower priority than cyan circles */
         }
         #meterBar {
             position: absolute;
@@ -60,7 +60,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-			z-index: 10; /* Ensure the right stick appears above the canvas */
+            z-index: 10; /* Ensure the right stick appears above the canvas */
         }
         #cross {
             width: 12px;
@@ -92,7 +92,7 @@
             font-size: 100px;
             color: cyan;
             -webkit-text-stroke: 2px black; /* Outline for countdown numbers */
-			text-shadow: 3px 3px 2px black;
+            text-shadow: 3px 3px 2px black;
             z-index: 11;
         }
     </style>
@@ -247,7 +247,7 @@
                     ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`; //RGB color of the expanding flick circles
                     ctx.lineWidth = 4; //Line thickness
 					
-					// Draw the circle
+                    // Draw the circle
                     ctx.beginPath();
                     ctx.arc(marker.x, marker.y, size / 1.5, 0, Math.PI * 2); // expansion speed, ?, ?
                     ctx.stroke();
@@ -265,7 +265,7 @@
                 const targetY = centerY - rightStickY * scaleFactor;
 
                 //storing past stick positions to draw the trail:
-				previousPositions.unshift({ x: targetX, y: targetY });
+                previousPositions.unshift({ x: targetX, y: targetY });
                 if (previousPositions.length > 20) previousPositions.splice(20); //After xx stored positions, will trim the trail length to xx segments (higher = longer trail)
 
                 drawTrail();
@@ -283,7 +283,7 @@
                 } else if (!inDeadzone) {
                     startTimer();
 					
-					//Add a flick marker
+                    //Add a flick marker
                     flickMarkers.push({
                         x: maxVerticalPos.x,
                         y: maxVerticalPos.y,
@@ -295,7 +295,7 @@
                 }
 
                 //centers the trail from the center of the right stick position:
-				circle.style.left = `${targetX - 10}px`;
+                circle.style.left = `${targetX - 10}px`;
                 circle.style.top = `${targetY - 10}px`;
             }
             requestAnimationFrame(updateStickPosition);
