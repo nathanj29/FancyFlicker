@@ -18,7 +18,7 @@ The best kind of flicks are the ones which barely move the right stick out of th
 
 Flicks can either be performed up or down, and both appear as efficient.
 
-This background image shows the vertical axis deadzone in green, and the area that allows vertical camera movements in blue.
+This image shows the vertical axis deadzone in green, and the area that allows vertical camera movements in blue.
 Move the right stick in and out of the blue areas to perform a flick.
 The blue arrows suggest several flicking methods to practice depending on circumstances and preferences.
 
