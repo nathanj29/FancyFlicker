@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Right Stick Flicking Overlay</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(0, 0, 0, 0); /* Transparent background for OBS compatibility */
+        }
+        #container {
+            position: relative;
+            width: 1032px;
+            height: 1032px;
+            background-image: url('https://i.imgur.com/hkaJqBp.png');
+            background-size: cover;
+        }
+        #squareFlash {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-sizing: border-box;
+            border: 15px solid transparent;
+            pointer-events: none;
+			z-index: 5; /* Lower priority than cyan circles */
+        }
+        #meterBar {
+            position: absolute;
+            top: 0px;
+            right: -35px;
+            width: 35px;
+            height: 1032px;
+            background-color: rgba(0, 0, 0, 0); /* Fully transparent */
+            border: 0px solid black;
+            overflow: hidden;
+        }
+        #meterFill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: cyan; /* For semi transparency: rgba(0, 255, 255, 0.7) */
+            transform-origin: bottom;
+            transform: scaleY(1);
+        }
+        #circle { /* The right stick */
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: cyan;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+			z-index: 10; /* Ensure the right stick appears above the canvas */
+        }
+        #cross {
+            width: 12px;
+            height: 2px;
+            background-color: black;
+            position: absolute;
+        }
+        #cross::before {
+            content: '';
+            width: 2px;
+            height: 12px;
+            background-color: black;
+            position: absolute;
+            left: 5px;
+            top: -5px;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 9; /* Ensures trail and flick circles appear above flashes */
+        }
+        #countdown {
+            position: absolute;
+            top: 910px;
+            left: 814px;
+            font-family: Calibri bold, sans-serif;
+            font-size: 100px;
+            color: cyan;
+            -webkit-text-stroke: 2px black; /* Outline for countdown numbers */
+			text-shadow: 3px 3px 2px black;
+            z-index: 11;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <canvas id="trailCanvas" width="1032" height="1032"></canvas>
+        <div id="squareFlash"></div>
+        <div id="meterBar">
+            <div id="meterFill"></div>
+        </div>
+        <div id="circle">
+            <div id="cross"></div>
+        </div>
+        <div id="countdown">3.00</div>
+    </div>
+    <script>
+        const canvas = document.getElementById('trailCanvas');
+        const ctx = canvas.getContext('2d');
+        const squareFlash = document.getElementById('squareFlash');
+        const meterBar = document.getElementById('meterBar');
+        const meterFill = document.getElementById('meterFill');
+        const countdown = document.getElementById('countdown');
+        const circle = document.getElementById('circle');
+
+        const centerX = 516;
+        const centerY = 516;
+        const scaleFactor = 500;
+
+        let previousPositions = [];
+        let flickMarkers = [];
+        let maxVerticalPressure = null;
+        let maxVerticalPos = null;
+        let inDeadzone = true;
+        let timer = 3.00;
+        let timerActive = false;
+        let lastUpdate = null;
+        let flashInProgress = null; // Track active flashes
+
+        function startTimer() {
+            lastUpdate = performance.now();
+            timerActive = true;
+
+            function updateTimer(timestamp) {
+                const elapsed = (timestamp - lastUpdate) / 1000;
+                lastUpdate = timestamp;
+
+                if (!inDeadzone) {
+                    timer = 3.0; // Reset when outside deadzone
+                } else {
+                    timer -= elapsed;
+                    if (timer <= 0) {
+                        timer = 0;
+                        timerActive = false;
+                    }
+                }
+
+                updateCountdownDisplay();
+                updateMeterBar();
+
+                const flashWindow = 0.010; // Window precision of flash timing. increase if some flashes don't occur.
+                const flashOffset = 0.012; // Adjust for visual lag of the flashes (depends on chosen window)
+                if (Math.abs(timer - (1.50 + flashOffset)) < flashWindow) flashSquare('FirstFlashColor'); // First flash timing. Name of the chosen color (doesn't actually change the color)
+                if (Math.abs(timer - (0.50 + flashOffset)) < flashWindow) flashSquare('SecondFlashColor');
+
+                if (timerActive) requestAnimationFrame(updateTimer);
+            }
+
+            requestAnimationFrame(updateTimer);
+        }
+
+        function resetTimer() {
+            timer = 3.0;
+            timerActive = false;
+            countdown.textContent = "3.00";
+            meterFill.style.transform = "scaleY(1)";
+        }
+
+        function flashSquare(color) {
+            if (flashInProgress) return; // Prevent overlapping flashes
+
+            flashInProgress = true;
+            const startTime = performance.now();
+
+            function animateFlash(currentTime) {
+                if (!inDeadzone) {
+                    squareFlash.style.borderColor = 'transparent'; // Stop flash immediately if out of the deadzone
+                    flashInProgress = false;
+                    return;
+                }
+                const elapsed = (currentTime - startTime) / 800; // duration of the flash (ms)
+                if (elapsed < 1) {
+                    const intensity = 1.1 - elapsed; // Gradual fade-out effect. Value of 1 = from fully visible to fully opaque. More than 1 = keep it fully visible longer before the fade out.
+                    squareFlash.style.borderColor = `rgba(${color === 'FirstFlashColor' ? '100, 100, 255' : '255, 0, 255'}, ${intensity})`; // RGB code of the first and second flash colors
+                    requestAnimationFrame(animateFlash);
+                } else {
+                    squareFlash.style.borderColor = 'transparent';
+                    flashInProgress = false;
+                }
+            }
+
+            requestAnimationFrame(animateFlash);
+        }
+
+        function updateCountdownDisplay() {
+            countdown.textContent = timer.toFixed(2); // Countdown precision
+        }
+
+        function updateMeterBar() {
+            const progress = timer / 3.00;
+            meterFill.style.transform = `scaleY(${progress})`;
+        }
+
+        function drawTrail() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < previousPositions.length - 1; i++) {
+                const pos1 = previousPositions[i];
+                const pos2 = previousPositions[i + 1];
+
+                const progress = i / previousPositions.length;
+
+                const r = Math.floor(255 * progress);
+                const g = 255 - r;
+                const b = 255;
+                const alpha = 1 - progress;
+
+                ctx.shadowColor = 'black'; // Set to transparent for no trail shadow
+                ctx.shadowBlur = 0; // 0 for no shadow to the trail
+				ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                ctx.lineWidth = 12 * (1 - progress) + 2; // starting width of the trail, and other width parameters
+
+                ctx.beginPath();
+                ctx.moveTo(pos1.x, pos1.y);
+                ctx.lineTo(pos2.x, pos2.y);
+                ctx.stroke();
+            }
+
+            flickMarkers.forEach((marker, index) => {
+                const elapsed = Date.now() - marker.timestamp;
+                const maxDiameter = 50; // Final size of the flick circles
+                const duration = 3000; // expansion duration (ms)
+
+                if (elapsed < duration) {
+                    const progress = elapsed / duration + 0; //Edit last value to make the circles start bigger
+                    const size = progress * maxDiameter;
+                    const alpha = 1 - progress;
+
+                    // Set color and line width of flick markers
+					ctx.shadowColor = 'white';
+                    ctx.shadowBlur = 8;
+                    ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`; //RGB color of the expanding flick circles
+                    ctx.lineWidth = 4; //Line thickness
+					
+					// Draw the circle
+                    ctx.beginPath();
+                    ctx.arc(marker.x, marker.y, size / 1.5, 0, Math.PI * 2); // expansion speed, ?, ?
+                    ctx.stroke();
+                }
+            });
+        }
+
+        function updateStickPosition() {
+            const gamepad = navigator.getGamepads()[0];
+            if (gamepad) {
+                const rightStickX = gamepad.axes[2];
+                const rightStickY = -gamepad.axes[3];
+
+                const targetX = centerX + rightStickX * scaleFactor;
+                const targetY = centerY - rightStickY * scaleFactor;
+
+                //storing past stick positions to draw the trail:
+				previousPositions.unshift({ x: targetX, y: targetY });
+                if (previousPositions.length > 20) previousPositions.splice(20); //After xx stored positions, will trim the trail length to xx segments (higher = longer trail)
+
+                drawTrail();
+
+                const verticalPressure = rightStickY * 100;
+
+                if (Math.abs(verticalPressure) >= 29.690) { // defines the deadzone
+                    if (inDeadzone) resetTimer();
+                    inDeadzone = false;
+
+                    if (maxVerticalPressure === null || Math.abs(verticalPressure) > Math.abs(maxVerticalPressure)) {
+                        maxVerticalPressure = verticalPressure;
+                        maxVerticalPos = { x: targetX, y: targetY };
+                    }
+                } else if (!inDeadzone) {
+                    startTimer();
+					
+					//Add a flick marker
+                    flickMarkers.push({
+                        x: maxVerticalPos.x,
+                        y: maxVerticalPos.y,
+                        timestamp: Date.now(),
+                    });
+                    maxVerticalPressure = null;
+                    maxVerticalPos = null;
+                    inDeadzone = true;
+                }
+
+                //centers the trail from the center of the right stick position:
+				circle.style.left = `${targetX - 10}px`;
+                circle.style.top = `${targetY - 10}px`;
+            }
+            requestAnimationFrame(updateStickPosition);
+        }
+
+        updateStickPosition();
+    </script>
+</body>
+</html>
