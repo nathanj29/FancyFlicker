@@ -44,6 +44,8 @@ Make a right stick input to "awaken" the tool and flick once to setup the countd
 ## Adding the tool in OBS
 It can be added as a browser source to stream/record your practice session, or just play from the preview window with it.
 
+Here is the link to add https://nathanj29.github.io/RightStickFlickingOverlay/
+
 Dimensions of the source: 1102 (width) x 1032 (height). You can crop the 35 (transparent) pixels on the left side of the source after.
 
 
