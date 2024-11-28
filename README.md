@@ -38,7 +38,7 @@ Note it is possible to move the right stick out of the external circle represent
 
 
 ## How to use?
-Make a right stick input to "awaken" the tool, then use it.
+Make a right stick input to "awaken" the tool and flick once to setup the countdown/meter bar.
 
 
 ## Adding the tool in OBS
