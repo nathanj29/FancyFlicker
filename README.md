@@ -1,5 +1,7 @@
 # Nathanj's Right Stick Flicking Overlay
-Tool made to help **practice Dropshoot** based Fancy Flying techniques in the video game ***Journey***. Tracks the right stick movements, indicates when it is time to flick and shows how you flicked. 
+Tool made to help **practice Dropshoot** based Fancy Flying techniques in the video game ***Journey***. Tracks the right stick movements, indicates when it is time to flick and shows how you flicked.
+
+Visit this link to use the tool: https://nathanj29.github.io/RightStickFlickingOverlay/
 
 
 ## Why flicking
