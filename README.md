@@ -4,12 +4,15 @@ Tool made to help **practice Dropshoot** based Fancy Flying techniques in the vi
 Visit this link to use the tool: https://nathanj29.github.io/RightStickFlickingOverlay/
 
 
+
 ## Why flicking
 When Fancy Flying, the longer you dive, the stronger the boost. However, the maximum boost energy you can charge becomes higher with steeper camera angles (more down, or more up in reverse).
 
 When performing a **Dropshoot** (running on the ground), the camera naturally tends to flatten on its own over time, which can easily weaken the boost.
 
 To maintain a steep camera angle over prolonged periods of time and obtain a great boost, it is important to flick the right stick (camera) at specific intervals, to keep full control over it.
+
+
 
 ## How to flick ?
 A flick needs to be performed every 3 seconds at least, otherwise the camera will flatten abruptly.
@@ -29,6 +32,7 @@ The blue arrows suggest several flicking methods to practice depending on circum
 Note it is possible to move the right stick out of the external circle representing the expected range of motion from a stick: Usually games will force too strong stick outputs back onto this outer circle, but *Journey* only does it for the left stick. This means it is possible to maintain 100% sideways pressure on the camera stick while also moving the camera up or down slightly in-game.
 
 
+
 ## Features
 * Tracks the right stick inputs by using Windows API
 * Shows a 3 second countdown that occurs anytime the right stick moves back into the vertical axis deadzone (green area)
@@ -38,8 +42,10 @@ Note it is possible to move the right stick out of the external circle represent
 * Possibility of practicing flicking with this tool even without playing the game !
 
 
+
 ## How to use?
 Move the right stick out of the vertical axis deadzone (green area) to both "awaken" the tool and setup the countdown/meter bar.
+
 
 
 ## Adding the tool to OBS
@@ -50,8 +56,10 @@ Here is the link to add https://nathanj29.github.io/RightStickFlickingOverlay/
 Dimensions of the source: 1102 (width) x 1032 (height). You can crop the 35 (transparent) pixels on the left side of the source after.
 
 
+
 ## Known limitations
 * The tool is more accurate with higher framerate. **Expect it to sometimes fail showing you successfully flicked when using OBS at 30fps**: it is possible the right stick moves out of the deadzone only in-between 2 OBS frames and thus doesn't reset the 3 seconds countdown, even though it technically did in the game itself. This issue happens only for extremely quick flicks that barely move out of the deadzone, and they are more rare at 60 fps.
+
 
 
 ## Credits
