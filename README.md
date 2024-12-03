@@ -63,6 +63,7 @@ Dimensions of the source: 1102 (width) x 1032 (height). You can crop the 35 (tra
 
 ## Known limitations
 * The tool is more accurate with higher framerate. **Expect it to sometimes fail showing you successfully flicked when using OBS at 30fps**: it is possible the right stick moves out of the deadzone only in-between 2 OBS frames and thus doesn't reset the 3 seconds countdown, even though it technically did in the game itself. This issue happens only for extremely quick flicks that barely move out of the deadzone, and they are more rare at 60 fps.
+* The trail behind the right stick movements becomes longer with lower FPS and shorter at higher FPS. It can be adjusted by downloading the html file, opening it (for example in notepad++), and modifying line 275 `if (previousPositions.length > 15) previousPositions.splice(15);`: higher numbers than 15 will make the trail longer, and vice versa. You can then open this html link in a browser or add it as a local browser source in OBS...
 
 
 
