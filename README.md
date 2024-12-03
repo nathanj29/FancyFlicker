@@ -17,7 +17,7 @@ To maintain a steep camera angle over prolonged periods of time and obtain a gre
 ## How to flick ?
 A flick needs to be performed every 3 seconds at least, otherwise the camera will flatten abruptly.
 
-Performing a flick will almost always flatten the camera a little, so be mindful of performing it well.
+Performing a flick will almost always flatten the camera a little, so be mindful of performing it well and only when needed (don't overdo it !)
 
 The best kind of flicks are the ones which barely move the right stick out of the vertical axis deadzone (corresponds to a vertical pressure just over or equal to 29.690%), and then go back into the deadzone quickly.
 
