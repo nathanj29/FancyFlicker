@@ -158,8 +158,8 @@
                 updateCountdownDisplay();
                 updateMeterBar();
 
-                const flashWindow = 0.010; // Window precision of flash timing. increase if some flashes don't occur.
-                const flashOffset = 0.0116; // Adjust for visual lag of the flashes (depends on chosen window and fps: lower it with higher fps). if window is 0.010, it flashes at 1.5000sec with offset of 0.0067 at 60fps. +0.0049 to round it up = 0.0116
+                const flashWindow = 0.020; // Window precision of flash timing. increase if some flashes don't occur. 0.010 is reliable at 60fps, so 0.020 should be good at 30fps.
+                const flashOffset = 0.0016; // Adjust for visual lag of the flashes (depends on chosen window and fps: lower it with higher fps). if window is 0.010, it flashes at 1.5000sec with an offset of 0.0067 at 60fps. +0.0049 to round it up = 0.0116
                 if (Math.abs(timer - (1.50 + flashOffset)) < flashWindow) flashSquare('FirstFlashColor'); // First flash timing. Name of the chosen color (doesn't actually change the color)
                 if (Math.abs(timer - (0.50 + flashOffset)) < flashWindow) flashSquare('SecondFlashColor');
 
