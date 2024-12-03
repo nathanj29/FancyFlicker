@@ -45,7 +45,9 @@ Note it is possible to move the right stick out of the external circle represent
 
 ## How to use?
 Just open the link in any browser.
+
 Move the right stick out of the vertical axis deadzone (green area) to both "awaken" the tool and setup the countdown/meter bar.
+
 Alternatively, add the tool to OBS:
 
 
