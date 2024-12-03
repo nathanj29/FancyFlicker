@@ -34,7 +34,7 @@ Note it is possible to move the right stick out of the external circle represent
 
 
 ## Features
-* Tracks the right stick inputs by using Windows API
+* Tracks the right stick inputs by using the browser API
 * Shows a 3 second countdown that occurs anytime the right stick moves back into the vertical axis deadzone (green area)
 * Shows a meter bar on the right side that represents these 3 seconds.
 * The outer square edges get colored flashes when there is 1.5 and 0.5 seconds left on the countdown. The first one indicates half the countdown is gone, and the second one says that it is time you flick.
