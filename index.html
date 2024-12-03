@@ -17,8 +17,12 @@
             position: relative;
             width: 1032px;
             height: 1032px;
-            background-image: url('https://i.imgur.com/hkaJqBp.png');
+            background-image: url('https://i.imgur.com/DVDzcgk.png');
             background-size: cover;
+            background-position: center;
+            background-color: rgba(0, 0, 0, 0.4); /* Semi transparent background */
+            /* backdrop-filter: blur(8px); blur effect of the background that doesn't show in obs? maybe after updating it? */
+            /* -webkit-backdrop-filter: blur(8px); Safari compatibility of blurred background */
         }
         #squareFlash {
             position: absolute;
@@ -125,13 +129,14 @@
         let previousPositions = [];
         let flickMarkers = [];
         let maxVerticalPressure = null;
-        let maxVerticalPos = null;
+        let maxVerticalPos = { x: centerX, y: centerY };
         let inDeadzone = true;
         let timer = 3.00;
         let timerActive = false;
         let lastUpdate = null;
         let flashInProgress = null; // Track active flashes
 
+        /* Timer Logic */
         function startTimer() {
             lastUpdate = performance.now();
             timerActive = true;
@@ -154,7 +159,7 @@
                 updateMeterBar();
 
                 const flashWindow = 0.010; // Window precision of flash timing. increase if some flashes don't occur.
-                const flashOffset = 0.012; // Adjust for visual lag of the flashes (depends on chosen window)
+                const flashOffset = 0.0116; // Adjust for visual lag of the flashes (depends on chosen window and fps: lower it with higher fps). if window is 0.010, it flashes at 1.5000sec with offset of 0.0067 at 60fps. +0.0049 to round it up = 0.0116
                 if (Math.abs(timer - (1.50 + flashOffset)) < flashWindow) flashSquare('FirstFlashColor'); // First flash timing. Name of the chosen color (doesn't actually change the color)
                 if (Math.abs(timer - (0.50 + flashOffset)) < flashWindow) flashSquare('SecondFlashColor');
 
@@ -171,6 +176,7 @@
             meterFill.style.transform = "scaleY(1)";
         }
 
+        /* Flash Square Logic */
         function flashSquare(color) {
             if (flashInProgress) return; // Prevent overlapping flashes
 
@@ -222,7 +228,7 @@
 
                 ctx.shadowColor = 'black'; // Set to transparent for no trail shadow
                 ctx.shadowBlur = 0; // 0 for no shadow to the trail
-				ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
+                ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
                 ctx.lineWidth = 12 * (1 - progress) + 2; // starting width of the trail, and other width parameters
 
                 ctx.beginPath();
@@ -242,7 +248,7 @@
                     const alpha = 1 - progress;
 
                     // Set color and line width of flick markers
-					ctx.shadowColor = 'white';
+                    ctx.shadowColor = 'white';
                     ctx.shadowBlur = 8;
                     ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`; //RGB color of the expanding flick circles
                     ctx.lineWidth = 4; //Line thickness
@@ -266,7 +272,7 @@
 
                 //storing past stick positions to draw the trail:
                 previousPositions.unshift({ x: targetX, y: targetY });
-                if (previousPositions.length > 20) previousPositions.splice(20); //After xx stored positions, will trim the trail length to xx segments (higher = longer trail)
+                if (previousPositions.length > 15) previousPositions.splice(15); //After xx stored positions, will trim the trail length to xx segments (higher = longer trail)
 
                 drawTrail();
 
