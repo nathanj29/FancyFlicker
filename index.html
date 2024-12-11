@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Right Stick Flicking Overlay</title>
+    <title>Nathanj's Fancy Flicker</title>
     <style>
         body {
             margin: 0;
@@ -112,6 +112,10 @@
             <div id="cross"></div>
         </div>
         <div id="countdown">3.00</div>
+		<div id="fpsDisplay" style="position: absolute; top: 24px; left: 24px; color: white; font-family: Calibri bold, sans-serif; font-size: 26px; background-color: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 5px;">
+			FPS: Calculating...
+		</div>
+
     </div>
     <script>
         const canvas = document.getElementById('trailCanvas');
@@ -121,6 +125,7 @@
         const meterFill = document.getElementById('meterFill');
         const countdown = document.getElementById('countdown');
         const circle = document.getElementById('circle');
+        const fpsDisplay = document.getElementById('fpsDisplay');
 
         const centerX = 516;
         const centerY = 516;
@@ -136,17 +141,76 @@
         let lastUpdate = null;
         let flashInProgress = null; // Track active flashes
 
+		let fps = 60; // Default FPS, updated dynamically
+		let lockedFPS = 60; // Highest detected FPS value (for the trail). Updates after stabilization.
+		let flashFPS = 60; // Independent FPS for the flashes
+		let lastFrameTime = performance.now();
+		let fpsValues = [];
+		const fpsMeasureInterval = 1000; // Measure FPS every 1 second
+
+		const trailSettings = { // Defines the trail length based on the framerate (how many coordinates long the trail is)
+			30: { maxPositions: 9 },
+			60: { maxPositions: 15 },
+			120: { maxPositions: 32 },
+		};
+
+		/* Predefined Flash Settings based on detected FPS, to make flashes more accurate and reliable.
+		flashWindow needs to be big enough to make sure every flashes occur at the specified timing, but too big gives less precision.
+		flashOffset is adjusted to make sure flashes occur when the timer is at 1.5049 or 0.5049, but not for values of 1.5050 or 0.5050, since they would round up to 1.51 and 0.51. */
+		const flashSettings = {
+			30: { flashWindow: 0.018, flashOffset: 0.0049+0.0154 }, // flashWindow of 0.017+ stable at 10+fps. flashoffset optimized for 30fps.
+			60: { flashWindow: 0.017, flashOffset: 0.0049-0.0003 }, // flashWindow of 0.016+ stable at 31+fps. flashoffset optimized for 60fps.
+			120: { flashWindow: 0.009, flashOffset: 0.0049-0.0006 }, // flashWindow of 0.008+ stable at 61+fps. flashoffset optimized for 120fps.
+		};
+
+		/* Detect FPS based on time between frames */
+		function detectFPS(timestamp) {
+			const delta = timestamp - lastFrameTime;
+			const currentFPS = 1000 / delta;
+			lastFrameTime = timestamp;
+			
+			// Store FPS values for averaging, otherwise the detected value flickers on browsers
+			fpsValues.push(currentFPS);
+			if (fpsValues.length > 130) fpsValues.shift(); // Limit array size to xxx frames for memory efficiency
+
+    		// Update the FPS display with the max detected value
+    		const averageFPS = fpsValues.reduce((a, b) => a + b, 0) / fpsValues.length;
+			fpsDisplay.textContent = `FPS: ${averageFPS.toFixed(1)}`;
+			fps = averageFPS;
+
+			requestAnimationFrame(detectFPS);
+		}
+			
+		/* Locks and updates FPS to the highest detected value  */
+		function updateLockedFPS() {
+			if (fpsValues.length < 130) { // Require at least xxx frame measurements before the fps output first updates after a refresh, for stability. can't put a value > array size of 100 frames.
+				lockedFPS = 60; // Defaults to 60fps settings for the stick trail until stabilization completes
+				flashFPS = 60; // Defaults to 60fps settings for the flashes until stabilization completes
+			} else {
+				const detectedFPS = Math.max(...fpsValues); // Use the highest FPS detected in the interval to indicate using the 30 60 or 120fps setting.
+				lockedFPS = detectedFPS >= 90 ? 120 : detectedFPS >= 45 ? 60 : 30; // Maps FPS range for the trail: gives 120 settings for fps >90, 60 settings when >45 and 30fps settings otherwise
+				flashFPS = detectedFPS >= 61 ? 120 : detectedFPS >= 31 ? 60 : 30; // Maps FPS for the flashes...
+			}
+
+			// Adjust trail settings dynamically after stabilization
+			const { maxPositions } = trailSettings[lockedFPS];
+			previousPositions.splice(maxPositions);
+
+			setTimeout(updateLockedFPS, fpsMeasureInterval);
+		}
+
         /* Timer Logic */
         function startTimer() {
             lastUpdate = performance.now();
             timerActive = true;
 
-            function updateTimer(timestamp) {
+			/* Flash Logic */
+			function updateTimer(timestamp) {
                 const elapsed = (timestamp - lastUpdate) / 1000;
                 lastUpdate = timestamp;
 
                 if (!inDeadzone) {
-                    timer = 3.0; // Reset when outside deadzone
+                    timer = 3.0; // Timer is reset when outside the deadzone
                 } else {
                     timer -= elapsed;
                     if (timer <= 0) {
@@ -158,10 +222,10 @@
                 updateCountdownDisplay();
                 updateMeterBar();
 
-                const flashWindow = 0.010; // Window precision of flash timing optimized for 60fps. increase for 30fps.
-                const flashOffset = 0.0116; // Adjust for visual lag of the flashes (depends on chosen window and fps). if window is 0.010, it flashes at 1.5000sec with offset of 0.0067 at 60fps. +0.0049 to round it up = 0.0116
-                if (Math.abs(timer - (1.50 + flashOffset)) < flashWindow) flashSquare('FirstFlashColor'); // First flash timing. Name of the chosen color (doesn't actually change the color)
-                if (Math.abs(timer - (0.50 + flashOffset)) < flashWindow) flashSquare('SecondFlashColor');
+                // Apply flash logic with mapped FPS range
+                const { flashWindow, flashOffset } = flashSettings[flashFPS];
+                if (Math.abs(timer - (1.5 + flashOffset)) < flashWindow) flashSquare('FirstFlashColor'); // First flash timing. Name of the chosen color (doesn't actually change the color)
+                if (Math.abs(timer - (0.5 + flashOffset)) < flashWindow) flashSquare('SecondFlashColor'); // Timing of the second flash...
 
                 if (timerActive) requestAnimationFrame(updateTimer);
             }
@@ -174,6 +238,55 @@
             timerActive = false;
             countdown.textContent = "3.00";
             meterFill.style.transform = "scaleY(1)";
+        }
+
+		/* Stick Logic */
+        function updateStickPosition() {
+            const gamepad = navigator.getGamepads()[0];
+            if (gamepad) {
+                const rightStickX = gamepad.axes[2];
+                const rightStickY = -gamepad.axes[3];
+
+                const targetX = centerX + rightStickX * scaleFactor;
+                const targetY = centerY - rightStickY * scaleFactor;
+				
+				// Store position for the trail
+				previousPositions.unshift({ x: targetX, y: targetY });
+		        // Adjust trail length based on FPS
+		        const { maxPositions } = trailSettings[lockedFPS];
+		        if (previousPositions.length > maxPositions) previousPositions.splice(maxPositions); //After xx maxPositions stored, will trim the trail length to xx maxPositions segments (higher = longer trail)
+	
+		        drawTrail();
+
+				// Vertical pressure logic
+                const verticalPressure = rightStickY * 100;
+
+                if (Math.abs(verticalPressure) >= 29.690) { // defines the deadzone
+                    if (inDeadzone) resetTimer();
+                    inDeadzone = false;
+
+                    if (maxVerticalPressure === null || Math.abs(verticalPressure) > Math.abs(maxVerticalPressure)) {
+                        maxVerticalPressure = verticalPressure;
+                        maxVerticalPos = { x: targetX, y: targetY };
+                    }
+                } else if (!inDeadzone) {
+                    startTimer();
+                    //Add a flick marker
+                    flickMarkers.push({
+                        x: maxVerticalPos.x,
+                        y: maxVerticalPos.y,
+                        timestamp: Date.now(),
+                    });
+                    maxVerticalPressure = null;
+                    maxVerticalPos = null;
+                    inDeadzone = true;
+                }
+
+                //centers the right stick:
+                circle.style.left = `${targetX - 10}px`;
+                circle.style.top = `${targetY - 10}px`;
+            }
+            requestAnimationFrame(updateStickPosition);
         }
 
         /* Flash Square Logic */
@@ -203,6 +316,7 @@
             requestAnimationFrame(animateFlash);
         }
 
+		/* UI Updates */
         function updateCountdownDisplay() {
             countdown.textContent = timer.toFixed(2); // Countdown precision
         }
@@ -212,6 +326,7 @@
             meterFill.style.transform = `scaleY(${progress})`;
         }
 
+		/* Draw Trail */
         function drawTrail() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -226,8 +341,8 @@
                 const b = 255;
                 const alpha = 1 - progress;
 
-                ctx.shadowColor = 'black'; // Set to transparent for no trail shadow
-                ctx.shadowBlur = 0; // 0 for no shadow to the trail
+                ctx.shadowColor = 'black'; // Set to 'transparent' for no trail shadow...
+                ctx.shadowBlur = 0; // ... or this value to 0 for no trail shadow
                 ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha})`;
                 ctx.lineWidth = 12 * (1 - progress) + 2; // starting width of the trail, and other width parameters
 
@@ -240,7 +355,7 @@
             flickMarkers.forEach((marker, index) => {
                 const elapsed = Date.now() - marker.timestamp;
                 const maxDiameter = 50; // Final size of the flick circles
-                const duration = 3000; // expansion duration (ms)
+                const duration = 3000; // expansion duration of the flick circles (ms)
 
                 if (elapsed < duration) {
                     const progress = elapsed / duration + 0; //Edit last value to make the circles start bigger
@@ -250,10 +365,10 @@
                     // Set color and line width of flick markers
                     ctx.shadowColor = 'white';
                     ctx.shadowBlur = 8;
-                    ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`; //RGB color of the expanding flick circles
+                    ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`; //RGB color of the expanding flick circles (cyan)
                     ctx.lineWidth = 4; //Line thickness
 					
-                    // Draw the circle
+                    // Draw the flick circles
                     ctx.beginPath();
                     ctx.arc(marker.x, marker.y, size / 1.5, 0, Math.PI * 2); // expansion speed, ?, ?
                     ctx.stroke();
@@ -261,52 +376,9 @@
             });
         }
 
-        function updateStickPosition() {
-            const gamepad = navigator.getGamepads()[0];
-            if (gamepad) {
-                const rightStickX = gamepad.axes[2];
-                const rightStickY = -gamepad.axes[3];
-
-                const targetX = centerX + rightStickX * scaleFactor;
-                const targetY = centerY - rightStickY * scaleFactor;
-
-                //storing past stick positions to draw the trail:
-                previousPositions.unshift({ x: targetX, y: targetY });
-                if (previousPositions.length > 15) previousPositions.splice(15); //After xx stored positions, will trim the trail length to xx segments (higher = longer trail)
-
-                drawTrail();
-
-                const verticalPressure = rightStickY * 100;
-
-                if (Math.abs(verticalPressure) >= 29.690) { // defines the deadzone
-                    if (inDeadzone) resetTimer();
-                    inDeadzone = false;
-
-                    if (maxVerticalPressure === null || Math.abs(verticalPressure) > Math.abs(maxVerticalPressure)) {
-                        maxVerticalPressure = verticalPressure;
-                        maxVerticalPos = { x: targetX, y: targetY };
-                    }
-                } else if (!inDeadzone) {
-                    startTimer();
-					
-                    //Add a flick marker
-                    flickMarkers.push({
-                        x: maxVerticalPos.x,
-                        y: maxVerticalPos.y,
-                        timestamp: Date.now(),
-                    });
-                    maxVerticalPressure = null;
-                    maxVerticalPos = null;
-                    inDeadzone = true;
-                }
-
-                //centers the trail from the center of the right stick position:
-                circle.style.left = `${targetX - 10}px`;
-                circle.style.top = `${targetY - 10}px`;
-            }
-            requestAnimationFrame(updateStickPosition);
-        }
-
+		// Start everything
+		requestAnimationFrame(detectFPS);
+		updateLockedFPS();
         updateStickPosition();
     </script>
 </body>
