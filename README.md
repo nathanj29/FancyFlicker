@@ -70,6 +70,7 @@ Dimensions of the source: 1102 (width) x 1032 (height). You can crop the 35 (tra
 
 ## Known limitations
 * The tool is more accurate with higher framerate. **Expect it to sometimes fail showing you successfully flicked when using it at 30 FPS**: it is possible the right stick moves out of the deadzone only in-between 2 frames and thus doesn't reset the 3 seconds countdown, even though it technically did in the game itself. This issue happens only for extremely quick flicks that barely move out of the deadzone, and they are more rare at 60 fps.
+* Colored flash timing and trail length were adjusted based on 30 60 and 120 FPS values. If your monitor has a super high refresh rate, expect a trail longer than usual or flashes occuring a little earlier than designed for.
 * If you open the tool on a browser that runs it at an inconsistent framerate, it is possible the tool will fail to reset the 3 seconds timer from time to time: e.g. if the framerate drops below 61 FPS while the monitor's refresh rate is set higher than 60 Hz, or if the framerate drops below 31 FPS on a 60Hz monitor.
 
 
