@@ -62,7 +62,7 @@ Alternatively, add the tool to OBS:
 ## Adding the tool to OBS
 It can be added as a browser source to stream/record your practice session, or just play from the preview window with it.
 
-Here is the link to add https://nathanj29.github.io/RightStickFlickingOverlay/
+Here is the link to add https://nathanj29.github.io/NathanjFancyFlicker/
 
 Dimensions of the source: 1102 (width) x 1032 (height). You can crop the 35 (transparent) pixels on the left side of the source after.
 
