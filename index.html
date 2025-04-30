@@ -99,23 +99,39 @@
             text-shadow: 3px 3px 2px black;
             z-index: 11;
         }
+	#wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* aligns top of container */
+            width: 100vw;
+            height: 100vh;
+            margin-left: -35px; /* shifts the whole thing to the right to include the cyan bar */
+            overflow: hidden;
+	}
+	#container {
+            position: absolute;
+            top: 0;
+            transform-origin: 533px 0px; // 1032/2 + 35/2
+	}
     </style>
 </head>
 <body>
-    <div id="container">
-        <canvas id="trailCanvas" width="1032" height="1032"></canvas>
-        <div id="squareFlash"></div>
-        <div id="meterBar">
-            <div id="meterFill"></div>
-        </div>
-        <div id="circle">
-            <div id="cross"></div>
-        </div>
-        <div id="countdown">3.00</div>
-		<div id="fpsDisplay" style="position: absolute; top: 24px; left: 24px; color: white; font-family: Calibri bold, sans-serif; font-size: 26px; background-color: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 5px;">
-			FPS: Calculating...
-		</div>
+    <div id="wrapper">
+		<div id="container">
+			<canvas id="trailCanvas" width="1032" height="1032"></canvas>
+			<div id="squareFlash"></div>
+			<div id="meterBar">
+				<div id="meterFill"></div>
+			</div>
+			<div id="circle">
+				<div id="cross"></div>
+			</div>
+			<div id="countdown">3.00</div>
+			<div id="fpsDisplay" style="position: absolute; top: 24px; left: 24px; color: white; font-family: Calibri bold, sans-serif; font-size: 26px; background-color: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 5px;">
+				FPS: Calculating...
+			</div>
 
+		</div>
     </div>
     <script>
         const canvas = document.getElementById('trailCanvas');
@@ -250,8 +266,8 @@
                 const targetX = centerX + rightStickX * scaleFactor;
                 const targetY = centerY - rightStickY * scaleFactor;
 				
-				// Store position for the trail
-				previousPositions.unshift({ x: targetX, y: targetY });
+		       // Store position for the trail
+		       previousPositions.unshift({ x: targetX, y: targetY });
 		        // Adjust trail length based on FPS
 		        const { maxPositions } = trailSettings[lockedFPS];
 		        if (previousPositions.length > maxPositions) previousPositions.splice(maxPositions); //After xx maxPositions stored, will trim the trail length to xx maxPositions segments (higher = longer trail)
@@ -379,7 +395,20 @@
 		// Start everything
 		requestAnimationFrame(detectFPS);
 		updateLockedFPS();
-        updateStickPosition();
+		updateStickPosition();
+		function resizeOverlay() {
+			const maxHeight = 1032;
+			const extraRightMargin = 35; // cyan bar width
+			const scale = Math.min(
+				window.innerWidth / (1032 + extraRightMargin), // width includes cyan bar
+				window.innerHeight < maxHeight ? window.innerHeight / 1032 : 1 // Prevents overly stretching the background image for big resolutions
+				// window.innerHeight / 1032      Replace with this if I want the background image to stretch beyond 1032px
+			);
+			document.getElementById('container').style.transform = `scale(${scale})`;
+		}
+
+		window.addEventListener('resize', resizeOverlay);
+		resizeOverlay(); // Initial call
     </script>
 </body>
 </html>
