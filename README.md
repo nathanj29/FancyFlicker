@@ -23,35 +23,48 @@ A flick needs to be performed every 3 seconds at least, otherwise the camera wil
 
 Performing a flick will almost always flatten the camera a little, so be mindful of performing it well and only when needed (don't overdo it !)
 
-The best kind of flicks are the ones which barely move the right stick out of the vertical axis deadzone (corresponds to a vertical pressure just over or equal to 29.690%), and then go back into the deadzone quickly.
+The best kind of flicks are the ones which barely move the right stick out of the vertical axis deadzone (corresponds to a vertical pressure just over or equal to 29.690%), and then go back in it quickly.
 
 Flicks can either be performed up or down, and both appear as efficient.
 
-This image shows the vertical axis deadzone in green, and the area that allows vertical camera movements in blue.
+This image (will be updated soon) shows the vertical axis deadzone in green, and the pressure areas that translate into vertical camera movements in-game in blue.
 Move the right stick in and out of the blue areas to perform a flick.
 The blue arrows suggest several flicking methods to practice depending on circumstances and preferences.
 
 ![right stick flicking possibilities](https://github.com/user-attachments/assets/008a07b2-b6af-410f-805b-368deb7b8be9)
 
-Note it is possible to move the right stick out of the external circle representing the expected range of motion from a stick: Usually games will force too strong stick outputs back onto this outer circle, but *Journey* only does it for the left stick. This means it is possible to maintain 100% sideways pressure on the camera stick while also moving the camera up or down slightly in-game.
+**Observation**: it can be possible to move the right stick out of the **dotted line representing the expected range of motion** _Journey_ considers for the sticks. This dotted line become a circle when not considering the vertical and horizontal axis deadzones.
+Usually games will force too strong stick inputs back onto this outer squircle (edge length adjusted depending on the size of the deadzone, which often isn't nearly as huge as the one _Journey_ has...). _Journey_ however only applies clamping to the left stick for pressure values that exceed this delimitation. This means it is possible to maintain 100% sideways pressure on the camera stick while also moving the camera up or down slightly in-game. As a result, with a worn out enough right stick it also becomes possible to obtain faster than normal camera movements in diagonals ! A brand new stick on the other hand probably won't let you reach this dotted line threshold, resulting in slightly lower camera speed. Technically, playing without the plastic cover top of your controller should allow for even faster diagonal camera movements (to be verified how much ! I haven't tried it).
 
 
 
 ## Features
-* Tracks the right stick inputs by using the browser API
-* Displays a 3 second countdown that resets by leaving the deadzone, and starts counting down anytime the right stick moves back into the vertical axis deadzone (green area)
-* Shows a meter bar on the right side that represents these 3 seconds.
-* The outer square edges get colored flashes when there is 1.5 and 0.5 seconds left on the countdown. The first one indicates half the countdown is gone, and the second one says that it is time you flick.
+* Shows the 3 right stick **deadzone types** upon loading the tool.
+* Tracks the right stick inputs by using the browser API.
+* **Shows the right stick coordinates** in the bottom left corner.
+* Displays a **3 second countdown** that resets to 3 by exiting the vertical axis deadzone (green color), and starts counting down whenever the right stick goes back in it.
+* Shows a **meter bar** on the right side that represents these 3 seconds.
+* The outer square edges get **colored flashes** when there is 1.5 and 0.5 seconds left on the countdown. The first one indicates half the countdown is gone, and the second one says that it is time to consider flicking.
 * Measures the framerate the tool is running at to better adjust the right stick trail length and give more precision to the colored flashes.
-* Colored expanding circles appear at the peak position reached by the right stick upon flicking. Look at them to know how well you perform.
+* **Cyan expanding circles** appear at the peak position reached by the right stick upon flicking. Look at them to know how well you perform.
 * Possibility of practicing flicking with this tool even without playing the game !
+* Indicates when you apply the minimal pressure recagnized in-game (see "Golden lines" section)
+* You can **zoom in and out** by resizing the browser window, doing ctrl + mouse wheel, or doing ctrl and the + or - key.
+
+
+
+## Golden lines
+2 golden lines are displayed on the tool. Entering a golden line or moving past it with the stick and reaching the blue colored background is considered being outside the vertical axis deadzone (green color).
+_Journey_ recognizes only 90 possible pressure points (outside of 0% pressure, which means being in the deadzone). They are scaled from the raw stick input used for this tool. These golden lines correspond to **the minimal vertical pressure range the game aknowledges**, which return an in-game camera pressure of 0,00000186%.
+The stick pressure to apply for itranges from 29.690% to 30.470%.
+The in-game pressure value returned is so low that when applied **the camera doesn't move at all in-game**, yet _Journey_ still considers it to be a pressure different than 0%. As a result, if you manage to maintain this pressure for prolonged periods of time the camera will never flatten. This can be especially useful for slow circle dropshoot ; however this pressure range is so precise that it can't be a reliable option to count on it working every time !
 
 
 
 ## How to use?
 Just open the link in any browser (some offer better framerate stability than others).
 
-Move the right stick out of the vertical axis deadzone (green area) to both "awaken" the tool and setup the countdown/meter bar.
+Move the right stick out of the vertical axis deadzone (green area) to setup the countdown/meter bar and start flicking.
 
 The measured framerate stabilizes after 130 frames are loaded (about 4 seconds at 30 FPS, 2 seconds at 60 FPS)
 
@@ -78,4 +91,4 @@ Dimensions of the source: 1067 (width) x 1032 (height).
 ## Credits
 Loggivan for discovering the 3 seconds countdown existance and that vertical pressure (not horizontal like we thought !) is tied to making flicking work !
 
-Chat GPT for helping to code everything.
+ChatGPT and ClaudeAI for helping to code everything.
