@@ -12,18 +12,52 @@
             justify-content: center;
             align-items: center;
             background-color: rgba(0, 0, 0, 0); /* Transparent background for OBS compatibility */
+			zoom: 1 !important;
+			transform: scale(1) !important;
+		}
+
+		* {
+			zoom: 1 !important;
+		}
+
+        #wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* aligns top of container */
+            width: 100vw;
+            height: 100vh;
+            margin-left: -35px; /* shifts the whole thing to the right to include the cyan bar */
+            overflow: hidden;
         }
+
         #container {
-            position: relative;
+            position: absolute;
+			top: 0;
             width: 1032px;
             height: 1032px;
-            background-image: url('https://i.imgur.com/DVDzcgk.png');
+            background-image: url('https://i.imgur.com/xuUrCin.png');
             background-size: cover;
             background-position: center;
-            background-color: rgba(0, 0, 0, 0.4); /* Semi transparent background */
+            background-color: rgba(0, 0, 0, 0.0); /* Semi transparent background */
+            transform-origin: 533px 0px; /* 1032/2 + 35/2 */
             /* backdrop-filter: blur(8px); blur effect of the background that doesn't show in obs? maybe after updating it? */
             /* -webkit-backdrop-filter: blur(8px); Safari compatibility of blurred background */
         }
+
+	#fadeOverlay {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		background-image: url('https://i.imgur.com/Cdc9hex.png');
+		background-size: cover;
+		background-position: center;
+		opacity: 1;
+		transition: opacity 0.5s ease-in-out;
+		z-index: 4; /* Below circle and flash but above background */
+	}
+
         #squareFlash {
             position: absolute;
             top: 0;
@@ -35,6 +69,7 @@
             pointer-events: none;
             z-index: 5; /* Lower priority than cyan circles */
         }
+
         #meterBar {
             position: absolute;
             top: 0px;
@@ -44,96 +79,188 @@
             background-color: rgba(0, 0, 0, 0); /* Fully transparent */
             border: 0px solid black;
             overflow: hidden;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
+
         #meterFill {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
             height: 100%;
+            background: linear-gradient(180deg, 
+                rgba(0, 255, 255, 1) 0%,
+                rgba(100, 200, 255, 0.9) 30%,
+                rgba(150, 150, 255, 0.85) 70%,
+                rgba(180, 100, 255, 0.8) 100%
+            );
             background-color: cyan; /* For semi transparency: rgba(0, 255, 255, 0.7) */
             transform-origin: bottom;
             transform: scaleY(1);
+			border-radius: 4px 4px 0px 0px;
+            box-shadow: 
+                0 0 20px rgba(0, 255, 255, 0.6),
+                inset 0 0 10px rgba(255, 255, 255, 0.3),
+                inset -3px 0 8px rgba(0, 0, 0, 0.2);
         }
+
         #circle { /* The right stick */
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: cyan;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 10; /* Ensure the right stick appears above the canvas */
+		position: absolute;
+		z-index: 10; /* Ensure the right stick appears above the trail */
+		transform-origin: center;
+		overflow: visible;
         }
-        #cross {
-            width: 12px;
-            height: 2px;
-            background-color: black;
-            position: absolute;
+
+        #circle circle {
+            fill: cyan;
+            transition: fill 0.40s ease-in-out;
         }
-        #cross::before {
-            content: '';
-            width: 2px;
-            height: 12px;
-            background-color: black;
-            position: absolute;
-            left: 5px;
-            top: -5px;
-        }
+
         canvas {
             position: absolute;
             top: 0;
             left: 0;
             pointer-events: none;
-            z-index: 9; /* Ensures trail and flick circles appear above flashes */
+            z-index: 9; /* cyan circles, stick trail */
         }
+
         #countdown {
-            position: absolute;
-            top: 910px;
-            left: 814px;
-            font-family: Calibri bold, sans-serif;
-            font-size: 100px;
-            color: cyan;
-            -webkit-text-stroke: 2px black; /* Outline for countdown numbers */
-            text-shadow: 3px 3px 2px black;
-            z-index: 11;
+		position: absolute;
+		top: 910px;
+		left: 814px;
+		font-family: Calibri bold, sans-serif;
+		font-size: 100px;
+		color: cyan;
+		text-shadow:
+			-2px -2px 0 black,
+			2px -2px 0 black,
+			-2px 2px 0 black,
+			2px 2px 0 black,
+			0 0 8px rgba(0, 0, 0, 0.8), /* Outer glow */
+			0 0 4px rgba(0, 0, 0, 1),   /* Core glow */
+			3px 3px 2px rgba(0, 0, 0, 0.8); /* Directional drop shadow */
+            z-index: 5;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
-	#wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start; /* aligns top of container */
-            width: 100vw;
-            height: 100vh;
-            margin-left: -35px; /* shifts the whole thing to the right to include the cyan bar */
-            overflow: hidden;
-	}
-	#container {
+		
+	#coordDisplay {
+		position: absolute;
+		bottom: 24px;
+		left: 24px;
+		color: white;
+		font-family: Calibri, sans-serif;
+		font-size: 20px;
+		font-weight: bold;
+		background: linear-gradient(135deg, rgba(0, 0, 0, 0.8), rgba(20, 20, 20, 0.9));
+		padding: 10px 16px;
+		border-radius: 12px;
+		border: 1px solid rgba(255, 255, 255, 0.2);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+		backdrop-filter: blur(8px);
+		text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+		line-height: 1.4;
+		min-width: 96px;
+		z-index: 5;
+		}
+
+        #fpsDisplay {
             position: absolute;
-            top: 0;
-            transform-origin: 533px 0px; /* 1032/2 + 35/2 */
-	}
+            top: 24px;
+            left: 24px;
+            color: white;
+            font-family: Calibri, sans-serif;
+            font-size: 26px;
+			background: linear-gradient(135deg, rgba(0, 0, 0, 0.75), rgba(20, 20, 20, 0.85));
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            /* display: none; comment out or not this line to show/hide the fps display */
+			min-width: 109px;
+            z-index: 5;
+        }
+
+        #goldenMessage {
+            position: absolute;
+            top: 49.4%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: Calibri, sans-serif;
+            font-weight: 600;
+            z-index: 15;
+            opacity: 0;
+            transition: opacity 0.40s ease-in-out;
+            pointer-events: none;
+            text-align: center;
+            white-space: nowrap;
+        }
+
+        #goldenMessage .line1 {
+            color: gold;
+			font-size: 48px;
+            text-shadow:
+				-2px -2px 0 black,
+				2px -2px 0 black,
+				-2px 2px 0 black,
+				2px 2px 0 black,
+				0 0 8px rgba(0, 0, 0, 0.8), /* Outer glow */
+				0 0 4px rgba(0, 0, 0, 1),   /* Core glow */
+				3px 3px 2px rgba(0, 0, 0, 0.8); /* Directional drop shadow */
+            display: block;
+        }
+
+        #goldenMessage .line2 {
+            color: black;
+			font-size: 36px;
+            text-shadow:
+				-2px -2px 0 white,
+				2px -2px 0 white,
+				-2px 2px 0 white,
+				2px 2px 0 white;
+            display: block;
+        }
+
+        #goldenMessage.fade-out {
+            transition: opacity 0.60s ease-in-out;
+        }
+		
     </style>
 </head>
 <body>
     <div id="wrapper">
-		<div id="container">
+        <div id="container">
+            <div id="fadeOverlay"></div>
 			<canvas id="trailCanvas" width="1032" height="1032"></canvas>
-			<div id="squareFlash"></div>
-			<div id="meterBar">
-				<div id="meterFill"></div>
-			</div>
-			<div id="circle">
-				<div id="cross"></div>
-			</div>
-			<div id="countdown">3.00</div>
-			<div id="fpsDisplay" style="position: absolute; top: 24px; left: 24px; color: white; font-family: Calibri bold, sans-serif; font-size: 26px; background-color: rgba(0, 0, 0, 0.5); padding: 5px; border-radius: 5px;">
-				FPS: Calculating...
-			</div>
-
-		</div>
+            <div id="squareFlash"></div>
+            <div id="meterBar">
+                <div id="meterFill"></div>
+            </div>
+			<svg id="circle" width="20" height="20" viewBox="0 0 20 20">
+				<!-- Cyan circle -->
+				<circle cx="10" cy="10" r="10" fill="cyan"/>
+				<!-- Black crosshair - adjusted to center -->
+                <line x1="10" y1="4" x2="10" y2="16" stroke="black" stroke-width="2"/>
+                <line x1="4" y1="10" x2="16" y2="10" stroke="black" stroke-width="2"/>
+			</svg>
+            <div id="countdown">3.00</div>
+            <div id="fpsDisplay">FPS: Calculating...</div>
+			<div id="coordDisplay">
+                <span id="xCoord">x: 0.00%</span><br>
+                <span id="yCoord">y: 0.00%</span>
+            </div>
+            <div id="goldenMessage">
+                <span class="line1">Camera will not flatten !</span><br>
+                <span class="line2">y ≥ 29.690% & y ≤ 30.470%</span>
+            </div>
+        </div>
     </div>
+
     <script>
+        // DOM Elements
         const canvas = document.getElementById('trailCanvas');
         const ctx = canvas.getContext('2d');
         const squareFlash = document.getElementById('squareFlash');
@@ -142,12 +269,22 @@
         const countdown = document.getElementById('countdown');
         const circle = document.getElementById('circle');
         const fpsDisplay = document.getElementById('fpsDisplay');
+        const coordDisplay = document.getElementById('coordDisplay');
+        const xCoord = document.getElementById('xCoord');
+        const yCoord = document.getElementById('yCoord');
+        const goldenMessage = document.getElementById('goldenMessage');
 
+        // Constants
         const centerX = 516;
         const centerY = 516;
         const scaleFactor = 500;
+        const DEADZONE_THRESHOLD = 29.690; // defines the deadzone
+        const GOLDEN_MIN = 29.690; // minimum pressure for golden mode
+        const GOLDEN_MAX = 30.470; // maximum pressure for golden mode
 
-        let previousPositions = [];
+        // Game State Variables
+        let customZoom = 1;
+		let previousPositions = [];
         let flickMarkers = [];
         let maxVerticalPressure = null;
         let maxVerticalPos = { x: centerX, y: centerY };
@@ -156,72 +293,152 @@
         let timerActive = false;
         let lastUpdate = null;
         let flashInProgress = null; // Track active flashes
+        let uiElementsVisible = false; // Track if UI elements have been shown
 
-		let fps = 60; // Default FPS, updated dynamically
-		let lockedFPS = 60; // Highest detected FPS value (for the trail). Updates after stabilization.
-		let flashFPS = 60; // Independent FPS for the flashes
-		let lastFrameTime = performance.now();
-		let fpsValues = [];
-		const fpsMeasureInterval = 1000; // Measure FPS every 1 second
+        // Golden Mode Variables
+        let goldenModeActive = false;
+        let goldenModeStartTime = null;
+        let goldenModeFadeTimeout = null;
 
-		const trailSettings = { // Defines the trail length based on the framerate (how many coordinates long the trail is)
-			30: { maxPositions: 9 },
-			60: { maxPositions: 15 },
-			120: { maxPositions: 32 },
-		};
+        // FPS Detection Variables
+        let fps = 60; // Default FPS, updated dynamically
+        let lockedFPS = 60; // Highest detected FPS value (for the trail). Updates after stabilization.
+        let flashFPS = 60; // Independent FPS for the flashes
+        let lastFrameTime = performance.now();
+        let fpsValues = [];
+        const fpsMeasureInterval = 1000; // Measure FPS every 1 second
 
-		/* Predefined Flash Settings based on detected FPS, to make flashes more accurate and reliable.
-		flashWindow needs to be big enough to make sure every flashes occur at the specified timing, but too big gives less precision.
-		flashOffset is adjusted to make sure flashes occur when the timer is at 1.5049 or 0.5049, but not for values of 1.5050 or 0.5050, since they would round up to 1.51 and 0.51. */
-		const flashSettings = {
-			30: { flashWindow: 0.018, flashOffset: 0.0049+0.0154 }, // flashWindow of 0.017+ stable at 10+fps. flashoffset optimized for 30fps.
-			60: { flashWindow: 0.017, flashOffset: 0.0049-0.0003 }, // flashWindow of 0.016+ stable at 31+fps. flashoffset optimized for 60fps.
-			120: { flashWindow: 0.009, flashOffset: 0.0049-0.0006 }, // flashWindow of 0.008+ stable at 61+fps. flashoffset optimized for 120fps.
-		};
+        // Defines the trail length based on the framerate (how many coordinates long the trail is)
+        const trailSettings = {
+            30: { maxPositions: 9 },
+            60: { maxPositions: 15 },
+            120: { maxPositions: 32 },
+        };
 
-		/* Detect FPS based on time between frames */
-		function detectFPS(timestamp) {
-			const delta = timestamp - lastFrameTime;
-			const currentFPS = 1000 / delta;
-			lastFrameTime = timestamp;
-			
-			// Store FPS values for averaging, otherwise the detected value flickers on browsers
-			fpsValues.push(currentFPS);
-			if (fpsValues.length > 130) fpsValues.shift(); // Limit array size to xxx frames for memory efficiency
+        /* Predefined Flash Settings based on detected FPS, to make flashes more accurate and reliable.
+        flashWindow needs to be big enough to make sure every flashes occur at the specified timing, but too big gives less precision.
+        flashOffset is adjusted to make sure flashes occur when the timer is at 1.5049 or 0.5049, but not for values of 1.5050 or 0.5050, since they would round up to 1.51 and 0.51. */
+        const flashSettings = {
+            30: { flashWindow: 0.018, flashOffset: 0.0049 + 0.0154 }, // flashWindow of 0.017+ stable at 10+fps. flashoffset optimized for 30fps.
+            60: { flashWindow: 0.017, flashOffset: 0.0049 - 0.0003 }, // flashWindow of 0.016+ stable at 31+fps. flashoffset optimized for 60fps.
+            120: { flashWindow: 0.009, flashOffset: 0.0049 - 0.0006 }, // flashWindow of 0.008+ stable at 61+fps. flashoffset optimized for 120fps.
+        };
 
-    		// Update the FPS display with the max detected value
-    		const averageFPS = fpsValues.reduce((a, b) => a + b, 0) / fpsValues.length;
-			fpsDisplay.textContent = `FPS: ${averageFPS.toFixed(1)}`;
-			fps = averageFPS;
+        /* Function to show UI elements with fade-in effect */
+        function showUIElements() {
+            if (!uiElementsVisible) {
+                meterBar.style.opacity = '1';
+                countdown.style.opacity = '1';
+                uiElementsVisible = true;
+            }
+        }
 
-			requestAnimationFrame(detectFPS);
-		}
-			
-		/* Locks and updates FPS to the highest detected value  */
-		function updateLockedFPS() {
-			if (fpsValues.length < 130) { // Require at least xxx frame measurements before the fps output first updates after a refresh, for stability. can't put a value > array size of 100 frames.
-				lockedFPS = 60; // Defaults to 60fps settings for the stick trail until stabilization completes
-				flashFPS = 60; // Defaults to 60fps settings for the flashes until stabilization completes
-			} else {
-				const detectedFPS = Math.max(...fpsValues); // Use the highest FPS detected in the interval to indicate using the 30 60 or 120fps setting.
-				lockedFPS = detectedFPS >= 90 ? 120 : detectedFPS >= 45 ? 60 : 30; // Maps FPS range for the trail: gives 120 settings for fps >90, 60 settings when >45 and 30fps settings otherwise
-				flashFPS = detectedFPS >= 61 ? 120 : detectedFPS >= 31 ? 60 : 30; // Maps FPS for the flashes...
-			}
+        /* Function to hide UI elements (for reset) */
+        function hideUIElements() {
+            meterBar.style.opacity = '0';
+            countdown.style.opacity = '0';
+            uiElementsVisible = false;
+        }
 
-			// Adjust trail settings dynamically after stabilization
-			const { maxPositions } = trailSettings[lockedFPS];
-			previousPositions.splice(maxPositions);
+        /* Golden Mode Functions */
+        function checkGoldenMode(verticalPressure) {
+            const absVerticalPressure = Math.abs(verticalPressure);
+            const inGoldenRange = absVerticalPressure >= GOLDEN_MIN && absVerticalPressure <= GOLDEN_MAX;
+            
+            if (inGoldenRange && !goldenModeActive) {
+                if (goldenModeStartTime === null) {
+                    goldenModeStartTime = performance.now();
+                } else if (performance.now() - goldenModeStartTime >= 250) { // 0.25 seconds delay
+                    activateGoldenMode();
+                }
+            } else if (!inGoldenRange) {
+                if (goldenModeActive) {
+                    deactivateGoldenMode();
+                }
+                goldenModeStartTime = null;
+            }
+        }
 
-			setTimeout(updateLockedFPS, fpsMeasureInterval);
-		}
+        function activateGoldenMode() {
+            if (goldenModeActive) return;
+            
+            goldenModeActive = true;
+            
+            // Clear any existing fade timeout
+            if (goldenModeFadeTimeout) {
+                clearTimeout(goldenModeFadeTimeout);
+                goldenModeFadeTimeout = null;
+            }
+            
+            // Remove fade-out classes first
+            goldenMessage.classList.remove('fade-out');
+            
+            // Show golden message with fade-in effect
+            goldenMessage.style.opacity = '1';
+        }
+
+        function deactivateGoldenMode() {
+            if (!goldenModeActive) return;
+            
+            goldenModeActive = false;
+            goldenModeStartTime = null;
+            
+            // Add fade-out class for faster transition
+            goldenMessage.classList.add('fade-out');
+            
+            // Hide golden message
+            goldenMessage.style.opacity = '0';
+            
+            // Clean up fade-out class after transition completes
+            goldenModeFadeTimeout = setTimeout(() => {
+                goldenMessage.classList.remove('fade-out');
+                goldenModeFadeTimeout = null;
+            }, 600);
+        }
+
+        /* Detect FPS based on time between frames */
+        function detectFPS(timestamp) {
+            const delta = timestamp - lastFrameTime;
+            const currentFPS = 1000 / delta;
+            lastFrameTime = timestamp;
+            
+            // Store FPS values for averaging, otherwise the detected value flickers on browsers
+            fpsValues.push(currentFPS);
+            if (fpsValues.length > 130) fpsValues.shift(); // Limit array size to xxx frames for memory efficiency
+
+            // Update the FPS display with the max detected value
+            const averageFPS = fpsValues.reduce((a, b) => a + b, 0) / fpsValues.length;
+            fpsDisplay.textContent = `FPS: ${averageFPS.toFixed(1)}`;
+            fps = averageFPS;
+
+            requestAnimationFrame(detectFPS);
+        }
+            
+        /* Locks and updates FPS to the highest detected value */
+        function updateLockedFPS() {
+            if (fpsValues.length < 130) { // Require at least xxx frame measurements before the fps output first updates after a refresh, for stability. can't put a value > array size of 100 frames.
+                lockedFPS = 60; // Defaults to 60fps settings for the stick trail until stabilization completes
+                flashFPS = 60; // Defaults to 60fps settings for the flashes until stabilization completes
+            } else {
+                const detectedFPS = Math.max(...fpsValues); // Use the highest FPS detected in the interval to indicate using the 30 60 or 120fps setting.
+                lockedFPS = detectedFPS >= 90 ? 120 : detectedFPS >= 45 ? 60 : 30; // Maps FPS range for the trail: gives 120 settings for fps >90, 60 settings when >45 and 30fps settings otherwise
+                flashFPS = detectedFPS >= 61 ? 120 : detectedFPS >= 31 ? 60 : 30; // Maps FPS for the flashes...
+            }
+
+            // Adjust trail settings dynamically after stabilization
+            const { maxPositions } = trailSettings[lockedFPS];
+            previousPositions.splice(maxPositions);
+
+            setTimeout(updateLockedFPS, fpsMeasureInterval);
+        }
 
         /* Timer Logic */
         function startTimer() {
             lastUpdate = performance.now();
             timerActive = true;
 
-			/* Flash Logic */
-			function updateTimer(timestamp) {
+            /* Flash Logic */
+            function updateTimer(timestamp) {
                 const elapsed = (timestamp - lastUpdate) / 1000;
                 lastUpdate = timestamp;
 
@@ -256,7 +473,7 @@
             meterFill.style.transform = "scaleY(1)";
         }
 
-		/* Stick Logic */
+        /* Stick Logic */
         function updateStickPosition() {
             const gamepad = navigator.getGamepads()[0];
             if (gamepad) {
@@ -265,21 +482,33 @@
 
                 const targetX = centerX + rightStickX * scaleFactor;
                 const targetY = centerY - rightStickY * scaleFactor;
-				
-		       // Store position for the trail
-		       previousPositions.unshift({ x: targetX, y: targetY });
-		        // Adjust trail length based on FPS
-		        const { maxPositions } = trailSettings[lockedFPS];
-		        if (previousPositions.length > maxPositions) previousPositions.splice(maxPositions); //After xx maxPositions stored, will trim the trail length to xx maxPositions segments (higher = longer trail)
-	
-		        drawTrail();
+                
+                // Store position for the trail
+                previousPositions.unshift({ x: targetX, y: targetY });
+                // Adjust trail length based on FPS
+                const { maxPositions } = trailSettings[lockedFPS];
+                if (previousPositions.length > maxPositions) previousPositions.splice(maxPositions); //After xx maxPositions stored, will trim the trail length to xx maxPositions segments (higher = longer trail)
+    
+                drawTrail();
 
-				// Vertical pressure logic
+                // Vertical pressure logic
                 const verticalPressure = rightStickY * 100;
 
-                if (Math.abs(verticalPressure) >= 29.690) { // defines the deadzone
-                    if (inDeadzone) resetTimer();
+                // Check for golden mode
+                checkGoldenMode(verticalPressure);
+
+                if (Math.abs(verticalPressure) >= DEADZONE_THRESHOLD) {
+                    if (inDeadzone) {
+                        resetTimer();
+                        showUIElements(); // Show UI elements when exiting deadzone
+                    }
                     inDeadzone = false;
+					
+					// Fade out the overlay image if it's still visible
+					const fadeOverlay = document.getElementById('fadeOverlay');
+					if (fadeOverlay && fadeOverlay.style.opacity !== '0') {
+						fadeOverlay.style.opacity = '0';
+					}
 
                     if (maxVerticalPressure === null || Math.abs(verticalPressure) > Math.abs(maxVerticalPressure)) {
                         maxVerticalPressure = verticalPressure;
@@ -298,9 +527,18 @@
                     inDeadzone = true;
                 }
 
-                //centers the right stick:
-                circle.style.left = `${targetX - 10}px`;
-                circle.style.top = `${targetY - 10}px`;
+		//centers the right stick (adjusted for 20x20 SVG):
+		circle.style.left = `${targetX - 10}px`;
+		circle.style.top = `${targetY - 10}px`;
+		
+		// Update bottom-left coordinate display
+		const format = (v) => {
+			const abs = Math.abs(v * 100);
+			if (abs > 0 && abs < 0.01) return v >= 0 ? '0.00+%' : '-0.00+%';
+			return (v * 100).toFixed(2) + '%';
+		};
+		xCoord.textContent = `x: ${format(rightStickX)}`;
+                yCoord.textContent = `y: ${format(rightStickY)}`;
             }
             requestAnimationFrame(updateStickPosition);
         }
@@ -332,7 +570,7 @@
             requestAnimationFrame(animateFlash);
         }
 
-		/* UI Updates */
+        /* UI Updates */
         function updateCountdownDisplay() {
             countdown.textContent = timer.toFixed(2); // Countdown precision
         }
@@ -342,7 +580,7 @@
             meterFill.style.transform = `scaleY(${progress})`;
         }
 
-		/* Draw Trail */
+        /* Draw Trail */
         function drawTrail() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -383,7 +621,7 @@
                     ctx.shadowBlur = 8;
                     ctx.strokeStyle = `rgba(0, 255, 255, ${alpha})`; //RGB color of the expanding flick circles (cyan)
                     ctx.lineWidth = 4; //Line thickness
-					
+                    
                     // Draw the flick circles
                     ctx.beginPath();
                     ctx.arc(marker.x, marker.y, size / 1.5, 0, Math.PI * 2); // expansion speed, ?, ?
@@ -392,6 +630,10 @@
             });
         }
 
+		// Initialize circle position to center
+		circle.style.left = `${centerX - 10}px`;
+		circle.style.top = `${centerY - 10}px`;
+
 		// Start everything
 		requestAnimationFrame(detectFPS);
 		updateLockedFPS();
@@ -399,15 +641,55 @@
 		function resizeOverlay() {
 			const maxHeight = 1032;
 			const extraRightMargin = 35; // cyan bar width
-			const scale = Math.min(
-				window.innerWidth / (1032 + extraRightMargin), // width includes cyan bar
-				window.innerHeight < maxHeight ? window.innerHeight / 1032 : 1 // Prevents overly stretching the background image for big resolutions
-				// window.innerHeight / 1032      Replace with this if I want the background image to stretch beyond 1032px
+			const containerWidth = 1032 + extraRightMargin;
+			
+			const baseScale = Math.min(
+				window.innerWidth / containerWidth,
+				window.innerHeight < maxHeight ? window.innerHeight / maxHeight : 1 // Prevents overly stretching the background image for big resolutions
 			);
-			document.getElementById('container').style.transform = `scale(${scale})`;
+
+			document.getElementById('container').style.transform = `scale(${baseScale * customZoom})`;
 		}
 
 		window.addEventListener('resize', resizeOverlay);
+		// Custom zoom functionality
+		document.addEventListener('wheel', function(e) {
+			if (e.ctrlKey) {
+				e.preventDefault();
+				
+				const zoomSpeed = 0.1;
+				if (e.deltaY < 0) {
+					customZoom = Math.min(customZoom + zoomSpeed, 3); // Max zoom 3x
+				} else {
+					customZoom = Math.max(customZoom - zoomSpeed, 0.2); // Min zoom 0.2x
+				}
+				
+				resizeOverlay(); // Use this instead of directly setting transform
+			}
+		}, { passive: false });
+		document.addEventListener('keydown', function (e) {
+			if (e.ctrlKey) {
+				const zoomSpeed = 0.1;
+				let zoomChanged = false;
+
+				// Zoom in: Ctrl + '+' (which may be '=') or Ctrl + NumpadAdd
+				if (e.key === '+' || e.key === '=' || e.key === 'Add') {
+					customZoom = Math.min(customZoom + zoomSpeed, 3);
+					zoomChanged = true;
+				}
+
+				// Zoom out: Ctrl + '-' or Ctrl + NumpadSubtract
+				if (e.key === '-' || e.key === 'Subtract') {
+					customZoom = Math.max(customZoom - zoomSpeed, 0.2);
+					zoomChanged = true;
+				}
+
+				if (zoomChanged) {
+					e.preventDefault(); // Prevent browser default zoom
+					resizeOverlay();
+				}
+			}
+		});
 		resizeOverlay(); // Initial call
     </script>
 </body>
