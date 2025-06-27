@@ -27,19 +27,21 @@ The best kind of flicks are the ones which barely move the right stick out of th
 
 Flicks can either be performed up or down, and both appear as efficient.
 
-This image (will be updated soon) shows the vertical axis deadzone in green, and the pressure areas that translate into vertical camera movements in-game in blue.
-Move the right stick in and out of the blue areas to perform a flick.
-The blue arrows suggest several flicking methods to practice depending on circumstances and preferences.
+This image shows the vertical axis deadzone in green (no vertical camera movement). The pressure areas that translate into vertical camera movements in-game are in blue.
+Move the right stick in and out of any blue area to perform a flick.
+Blue arrows suggest several flicking methods you can practice depending on circumstances and preferences.
 
-![right stick flicking possibilities](https://github.com/user-attachments/assets/008a07b2-b6af-410f-805b-368deb7b8be9)
+![right stick flicking possibilities](https://i.imgur.com/hF563yj.png)
 
-**Observation**: it can be possible to move the right stick out of the **dotted line representing the expected range of motion** _Journey_ considers for the sticks. This dotted line become a circle when not considering the vertical and horizontal axis deadzones.
-Usually games will force too strong stick inputs back onto this outer squircle (edge length adjusted depending on the size of the deadzone, which often isn't nearly as huge as the one _Journey_ has...). _Journey_ however only applies clamping to the left stick for pressure values that exceed this delimitation. This means it is possible to maintain 100% sideways pressure on the camera stick while also moving the camera up or down slightly in-game. As a result, with a worn out enough right stick it also becomes possible to obtain faster than normal camera movements in diagonals ! A brand new stick on the other hand probably won't let you reach this dotted line threshold, resulting in slightly lower camera speed. Technically, playing without the plastic cover top of your controller should allow for even faster diagonal camera movements (to be verified how much ! I haven't tried it).
+**Observation**: it may be possible you can move the right stick out of the **dotted line representing the expected range of motion** _Journey_ considers for the sticks (depending on your controller, or how worn out the sticks are).
+This dotted line become a circle when not considering the vertical and horizontal axis deadzones.
+
+Usually games will force too strong stick inputs back onto this dotted line (adjusted based on the size of the game's deadzone, which often isn't nearly as huge as the one _Journey_ has...). _Journey_ however only applies clamping to the left stick, for pressure values exceeding this boundary. This means with the right stick it is possible on most controllers to maintain 100% sideways pressure on the camera while also moving it a little up or down in-game ! With a stick worn out enough it also becomes possible to obtain faster than normal camera movements in diagonals ! A brand new stick on the other hand probably won't let you get much close to this dotted line threshold, resulting in slightly lower camera speed. Technically, playing without the plastic cover top of your controller should allow for even faster diagonal camera movements (to be verified how much ! I haven't tried it, but maybe you could even have 100% vertical and horizontal camera speed at the same time !).
 
 
 
 ## Features
-* Shows the 3 right stick **deadzone types** upon loading the tool.
+* Shows the 3 right stick **deadzone types**, upon loading the tool.
 * Tracks the right stick inputs by using the browser API.
 * **Shows the right stick coordinates** in the bottom left corner.
 * Displays a **3 second countdown** that resets to 3 by exiting the vertical axis deadzone (green color), and starts counting down whenever the right stick goes back in it.
@@ -54,10 +56,12 @@ Usually games will force too strong stick inputs back onto this outer squircle (
 
 
 ## Golden lines
-2 golden lines are displayed on the tool. Entering a golden line or moving past it with the stick and reaching the blue colored background is considered being outside the vertical axis deadzone (green color).
-_Journey_ recognizes only 90 possible pressure points (outside of 0% pressure, which means being in the deadzone). They are scaled from the raw stick input used for this tool. These golden lines correspond to **the minimal vertical pressure range the game aknowledges**, which return an in-game camera pressure of 0,00000186%.
-The stick pressure to apply for itranges from 29.690% to 30.470%.
-The in-game pressure value returned is so low that when applied **the camera doesn't move at all in-game**, yet _Journey_ still considers it to be a pressure different than 0%. As a result, if you manage to maintain this pressure for prolonged periods of time the camera will never flatten. This can be especially useful for slow circle dropshoot ; however this pressure range is so precise that it can't be a reliable option to count on it working every time !
+2 golden lines are displayed on the tool. Entering a golden line or moving past it with the stick and reaching the blue colored background is considered being outside the vertical axis deadzone.
+
+_Journey_ recognizes only 90 possible pressure points (outside of 0% pressure, whenever the stick is in the deadzone). They are scaled from the raw stick input used for this tool. These golden lines correspond to **the minimal vertical pressure range the game aknowledges**, which return an in-game camera pressure of 0,00000186%.
+The true stick pressure to apply for it ranges from between 29.690% to 30.470%.
+
+The in-game pressure value returned when the stick is in a golden line is so low that if applied **the camera won't move at all in-game**. Yet _Journey_ still considers it to be a pressure different than 0%. As a result, if you manage to maintain this pressure for prolonged periods of time the camera will never flatten. This can be especially useful for slow circle dropshoot. This pressure range is so precise however that it can't be a reliable option to count on it working every time from just muscle memory!
 
 
 
