@@ -3,7 +3,7 @@ Tool made to help **practicing Dropshoot** based Fancy Flying techniques in the 
 
 Tracks the right stick movements, indicates when it is time to flick and shows how you flicked.
 
-Visit [this link](https://nathanj29.github.io/NathanjFancyFlicker/) to use the tool.
+Visit [this link](https://nathanj29.github.io/FancyFlicker/) to use the tool.
 
 
 
