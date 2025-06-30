@@ -64,7 +64,7 @@ Alternatively, add the tool to OBS:
 ## Adding the tool to OBS
 It can be added as a browser source to stream/record your practice session, or just play from the preview window with it.
 
-Here is the link to add https://nathanj29.github.io/NathanjFancyFlicker/
+Here is the link to add https://nathanj29.github.io/FancyFlicker/
 
 Dimensions of the source: 1067 (width) x 1032 (height).
 
