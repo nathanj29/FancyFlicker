@@ -73,51 +73,34 @@ Dimensions of the source: 1067 (width) x 1032 (height).
 ### Diagonal stick input behavior
 Square mode (or standard mode) is the mode based on which most controllers rely on for stick inputs: the sticks move in the shape of a circle physically, but the signal they transmit to the computer is in the shape of a square, with pressure ranging from between -1 to 1 for the vertical (Y) and horizontal (X) axis (each measured independently).
 
-The resulting signal received has a maximal magnitude of 1, if purely on the horizontal or vertical axis. For diagonals however the combined pressure of both axis contained physically inside of a circle often translates into a maximal magnitude ranging beyond 1 ! (More or less depending on the controller itself, the controller brand, and how worn out the sticks you are using are.)
-The maximal stick signal returned for all directions therefore has the shape of a square with rounded corners ; which you can test for your controller on [this website](https://hardwaretester.com/gamepad) by clicking "Test circularity".
+The resulting signal received has a maximal magnitude of 1, if purely on the horizontal or vertical axis. For diagonals however the combined pressure of both axis physically contained inside of a circle often translates into a maximal magnitude reaching beyond 1 ! (More or less depending on the controller itself, the controller brand, and how worn out the sticks you are using are.)
+The maximal stick input returned for every directions therefore takes the shape of a square with rounded corners ; which you can test for your controller on [this website](https://hardwaretester.com/gamepad) by clicking "Test circularity".
 
-IMAGE MON STICK xbox series RIGHT NOW: notice how the top left and top right parts of my left stick has a stronger deviation due to the plastic of the stick being worn out from overuse.
+    IMAGE MON STICK xbox series RIGHT NOW: notice how the top left and top right parts of my left stick has a stronger deviation due to the plastic of the stick being worn out from overuse.
 
 This mechanic of having stronger diagonal input possibilities is called the « Average error » (or circularity error/radial deviation): it is completely normal to have it to some degree (8 to 14% deviation is the average for most controller brands).
 
 ### Journey's deadzone problem
 When a game processes raw stick inputs, it often ensures the ones with a magnitude bigger than 1 are corrected by clamping their pressure value back over the outer ring of a circle with a magnitude of 1. This helps preventing too strong inputs that would lead to faster diagonal movements or unusual camera speeds. In such cases, having some degree of radial deviation ensures you can always reach this outer circle, for every input directions and with the strongest input you should be able to give !
 
-On PC _Journey_ in its stick input processing logic however completely bypasses the horizontal and vertical axis deadzone ; acting as if the game-processed pressure of 0% started at 29.689% raw stick input, for either axis.
-This leads to clamped inputs not being inscribed under the shape of a circle, but instead **an extended square with rounded corners**, where the arching starts at the edges of the horizontal and vertical axis deadzones: This shape corresponds to the **dashed line** you can view on this tool !
+On PC, _Journey_ with its stick input processing logic however completely bypasses the ridiculously huge horizontal and vertical axis deadzones ; acting as if a game-processed pressure of 0% starts at 29.689% raw stick input, for either axis.
+This leads to clamped inputs not being inscribed under the shape of a circle, but instead **an extended square with rounded corners**, where the arching starts at the edges of the horizontal and vertical axis deadzones: This shape corresponds to the **dashed line** you can view on this tool, and it represents a magnitude of 1 for every directions (or to put it simply: the expected range of motion to reach for _Journey_) !
 
-The dashed line shape is a problem for diagonal inputs because even with some stick radial deviation, most controller will not be able to reach it fully for every stick directions ! As a result for the right stick the camera would be moving a little more slowly than it could in theory (still way faster than on Playstation versions).
+    Image de la dashed line...
 
-On PC for some reason the right stick doesn't apply clamping at all to stick positions with a magnitude greater than 1 (but the left stick does !). This means with a controller that has a really strong radial deviation it becomes possible to move the camera very fast: if you were to suceed in giving a raw input of (X=1, Y=1)  the right stick would give a camera speed corresponding to the magnitude of 1.41 !
-I have a theory clamping was removed from the PC port to allow for quick mouse movements.
+This dashed line shape is a problem for diagonal inputs because even with some stick radial deviation, most brand new controllers will not be able to reach it fully in every direction ! For the camera this could in theory be a light speed issue, however for some reason on PC **the right stick doesn't even apply clamping at all to stick positions with a magnitude exceeding 1** (but the left stick does !). This means with a right stick that has a really strong radial deviation it becomes possible to move the camera abnormally fast (yet nowhere near as fast as with a mouse of course).
+
+For most controllers it should still be possible to maintain 100% sideways pressure on the camera while also moving it a little up or down in-game (just peaking out of the vertical axis deadzone) ! If you were to succeed in giving a raw input of (X=1, Y=1), the right stick would give a camera speed corresponding to the maximal magnitude of 1.41 ! The camera would then be moving at x1.41 times its theoretical max speed. This can result in some controllers being more advantageous to others for _Journey_.
+
+I have a theory clamping was removed from the PC port on the right stick to allow for quicker mouse movements...
 
 
 PS versions have a different clamping system ?
 
-Unlike for the left stick, the right stick in Journey for some reason doesn't handle clamping at all !
-
-
-, and it actually ensures the sticks won't slow down in diagonals in-game. Whenever pressure goes beyond games will clamp values...
-
-Si les développeurs d’un jeu souhaite corriger cette anomalie, alors ils corrigent la réponse carrée en normalisant le vecteur (X, Y) :
-ils calculent la magnitude du déplacement (√(X² + Y²)) et, si elle dépasse 1 (donc en diagonale), ils réduisent X et Y proportionnellement pour que la distance reste dans un cercle de rayon 1.
-
-
-this can result in some controllers being more advantageous to other for Journey, especially given right stick applies no clamping! usually games correct or not the fact inputs can become overly strong in diagonals, but somehow Journey applies the correction only to the left stick.
-the square mode allows an input magnitude reaching beyond 100%
-cam faster in diagonal:
-
-C’est aussi ce qui est exploité par de nombreux speedrunners car dans certains jeux, se déplacer en diagonale est plus rapide, c’est directement dû au fait que le joystick, ou même les entrées clavier, envoie une réponse carrée, permettant de dépasser une magnitude de 100 %.
-
-
-Depending on your controller, or how worn out the sticks are it may be possible that upon using this tool you can move the right stick out of the **dashed line, which represents a mapping of the expected range of motion** _Journey_ considers for the sticks.
-This dashed line becomes a circle when not considering the vertical and horizontal axis deadzones.
-
-Usually games will force too strong stick inputs back onto this dashed line, which is adjusted based on the size of the game's horizontal and vertical axis deadzones. Quite often the deadzones aren't nearly as huge as the ones _Journey_ applies, which explains why _Journey_ may be expecting slightly too big stick range of motion for your controller.
-
-_Journey_ for whatever reason only applies clamping to the left stick, for pressure values exceeding this boundary. This means with the right stick it is possible on most controllers to maintain 100% sideways pressure on the camera while also moving it a little up or down in-game ! With a stick worn out enough it also becomes possible to obtain faster than normal camera movements in diagonals ! A brand new stick on the other hand probably won't let you get much close to this dashed line threshold when applying diagonal pressure ; resulting in slightly lower camera speed. Technically, playing without the plastic cover top of your controller should allow for even faster diagonal camera movements in theory (I haven't tried it yet, but maybe you could even expect having 100% vertical and horizontal camera speed at the same time !).
-
-
+    Left stick... :
+    due to the radial deviation being quite light for most controllers, the left stick may be moving a little more slowly than it could in theory.
+    Si les développeurs d’un jeu souhaite corriger cette anomalie, alors ils corrigent la réponse carrée en normalisant le vecteur (X, Y) :
+    ils calculent la magnitude du déplacement (√(X² + Y²)) et, si elle dépasse 1 (donc en diagonale), ils réduisent X et Y proportionnellement pour que la distance reste dans un cercle de rayon 1.
 
 ## Golden lines
 2 golden lines are displayed on the tool. Entering a golden line or moving past it with the stick and reaching the blue colored background is considered being outside the vertical axis deadzone.
