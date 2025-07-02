@@ -78,7 +78,7 @@ The maximal stick input returned for every directions therefore takes the shape 
 
 ![circularity test on my controller](https://i.imgur.com/C4HxBP7.png)
 
-This image above shows the circularity of my left and right sticks: notice how the top left and top right part of my left stick have a stronger deviation due to the plastic of the stick being worn out from overuse...
+This image above shows the circularity of my left and right sticks (xbox series controller): notice how the top left and top right part of my left stick have a stronger deviation due to the plastic of the stick being worn out from overuse...
 
 This mechanic of having stronger diagonal input possibilities is called the « Average error » (or circularity error/radial deviation): it is completely normal to have it to some degree (8 to 14% deviation is the average for most controller brands).
 
