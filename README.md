@@ -128,4 +128,4 @@ Loggivan for discovering the 3 seconds countdown existance and that vertical pre
 
 ChatGPT and ClaudeAI for helping to code everything.
 
-This [french article](https://www.cowcotland.com/articles/4639/marre-des-manettes-pourries-comment-bien-choisir-sa-manette-partie-1-les-joysticks.html) for explaining a lot about how stick input works, and how games handle them. It also helped making the clamping mechanic of the tool work perfectly as intended.
+This [french article](https://www.cowcotland.com/articles/4639/marre-des-manettes-pourries-comment-bien-choisir-sa-manette-partie-1-les-joysticks.html) for explaining a lot about how stick input works, and how games handle them.
