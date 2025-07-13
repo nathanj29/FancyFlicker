@@ -97,7 +97,7 @@ In this formula, 29.690% corresponds to the first pressure input the game return
 
 (100% - 29.690% + 0.005%) is the full span of the recognized raw input range, with a correction factor for the shorter last step.
 
-The accuracy of raw input pressure range vs game-pressure was confirmed via testing upon using the [HardwareTester website](https://hardwaretester.com/gamepad) on several browsers, and comparing with Cheat Engine pressure values.
+The accuracy of the raw input pressure range vs game-pressure was confirmed via testing upon using the [HardwareTester website](https://hardwaretester.com/gamepad) on several browsers, and comparing with Cheat Engine pressure values.
 </details>
 
 
