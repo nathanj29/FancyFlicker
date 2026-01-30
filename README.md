@@ -33,7 +33,7 @@ This image below shows the vertical axis deadzone in green (= no vertical camera
 Move the right stick in and out of any blue area to perform a flick.
 Blue arrows suggest several flicking methods you can practice depending on circumstances and preferences.
 
-![right stick flicking possibilities](https://i.imgur.com/hF563yj.png)
+![right stick flicking possibilities](https://raw.githubusercontent.com/nathanj29/FancyFlicker/refs/heads/main/Images/arrows.png)
 
 
 
@@ -74,14 +74,14 @@ Dimensions of the source: 1067 (width) x 1032 (height).
 ## Stick pressure
 ### Recognized pressure points
 
-![deadzones](https://i.imgur.com/Qw5CW1J.png)
+![deadzones](https://raw.githubusercontent.com/nathanj29/FancyFlicker/refs/heads/main/Images/deadzone%20right%20stick.png)
 
 _Journey_ recognizes only 90 fixed stick pressure values when outside the vertical or horizontal axis deadzones. These pressure points are scaled from the raw stick input every 0.781% (or 0.776% for the last step). The corresponding game-processed pressure values however are not equally spaced with each other: they follow an odd pattern with gaps of either 0.98% or 1.47% between steps (or even 0,00000186% for the first step).
 
 <details>
 <summary>Click to view a chart listing every possible pressure value, raw and Journey-processed :</summary>
     
-![chart pressure comparison](https://i.imgur.com/112dBZS.png)
+![chart pressure comparison](https://raw.githubusercontent.com/nathanj29/FancyFlicker/refs/heads/main/Images/chart%20pressure.png)
 </details>
 
 <details>
@@ -91,7 +91,7 @@ Game-processed pressure points were simply written down one by one from observed
 
 Here is the formula that was used to find the raw stick input corresponding to each of these 90 steps:
     
-![math formula](https://i.imgur.com/8WMHyAW.png)
+![math formula](https://raw.githubusercontent.com/nathanj29/FancyFlicker/refs/heads/main/Images/raw%20stick%20input%20formula.png)
 
 In this formula, 29.690% corresponds to the first pressure input the game returns as a value different than 0.
 
@@ -104,7 +104,7 @@ The accuracy of the raw input pressure range vs game-pressure was confirmed via 
 
 ### Gold lines
 
-![gold lines](https://i.imgur.com/qELaaE0.png)
+![gold lines](https://raw.githubusercontent.com/nathanj29/FancyFlicker/refs/heads/main/Images/FlickingBackground.png)
 
 On the image above 2 gold lines are displayed: They correspond to **the minimal vertical pressure range the game acknowledges**, which returns the value of 0,00000186% in-game. The raw stick input to apply for this ranges from between 29.690% to 30.470%.
 
@@ -119,7 +119,7 @@ Square mode (or standard mode) is the mode based on which most controllers rely 
 When pressing the stick fully up, down, right, or left, the resulting signal has a maximal magnitude of 1. For diagonals however the combined pressure of both axis can often translate into a maximal magnitude exceeding 1 ! (More or less, depending on the controller itself, the controller brand, and how worn out the sticks you are using are.)
 If you combine the maximal magnitude reached for every direction into a graphic, it should take the shape of a square with rounded corners ; which you can test for your controller on [this website](https://hardwaretester.com/gamepad) by clicking "Test circularity".
 
-![circularity test on my controller](https://i.imgur.com/C4HxBP7.png)
+![circularity test on my controller](https://raw.githubusercontent.com/nathanj29/FancyFlicker/refs/heads/main/Images/circularity%20error.png.png)
 
 This image above shows the circularity of my left and right sticks (xbox series controller): Notice how the top left and top right parts of my left stick have a stronger deviation due to the plastic of the stick being worn out from overuse.
 
@@ -133,7 +133,7 @@ When a game processes raw stick inputs, it often ensures inputs with a magnitude
 _Journey_ with its stick input processing logic however completely bypasses the ridiculously huge horizontal and vertical axis deadzones (thus starting at 29.690% raw pressure).
 This leads to the "magnitude = 1" representation no longer lying on the circumference of a circle, but instead on **a bigger square with rounded corners**, where the arching starts at the edges of the horizontal and vertical axis deadzones. This shape corresponds to the **gold dashed line** you can view on the following image, and **it represents a magnitude of 1 for every input direction based on _Journey_'s mapping** (or to put it simply: the expected range of motion to reach for _Journey_) ! It's over this line that _Journey_ should clamp back too strong right stick inputs (yet it doesn't : more on that below).
 
-![clamping explained](https://i.imgur.com/4LokUjb.png)
+![clamping explained](https://raw.githubusercontent.com/nathanj29/FancyFlicker/refs/heads/main/Images/right%20stick%20clamping%20explained.png)
 
 The problem with this bigger "magnitude = 1" shape is that even with some stick radial deviation, **most controller brands won't be able to reach it fully** in every direction ! (At least not without a custom re-calibration of pressure sensitivity, or worn out sticks.) For the camera this could lead to a speed issue ; however for some reason on PC **_Journey_ doesn't even apply clamping at all to the right stick for input coordinates with a magnitude exceeding 1 !** (The left stick does apply it correctly in comparison.) This means playing with a right stick that has a really strong radial deviation involves it being possible to move the camera abnormally fast (yet nowhere near as fast as with a mouse of course).
 
